@@ -1,0 +1,104 @@
+---
+
+
+# Check if all stack members have the flash:packages.conf configured
+# If not will configure all stack members with flash:packages.conf from existing .bin file
+    - name: save config
+      ios_config:
+        save_when: always
+     
+    - name: Boot config update
+      include_tasks: change_to_install_mode.yml
+      when: 
+        - ansible_net_image != 'flash:packages.conf'
+
+# Check available space and cleanup if requires 
+
+    - name: Get file_size of new_ver
+      include_tasks: available_space.yml
+      
+# Prepare the switch for the new version
+ 
+    - name: Prepare the switch for the new version
+      ios_config:
+        lines:
+        - boot system flash:packages.conf
+        - ip scp server enable
+        - software auto-upgrade enable
+        save_when: always
+
+# Reload the device
+
+    - name: reload the device
+      ios_command:
+        commands:
+          - "write mem\n"
+          - "reload\n"
+
+      
+# Wait the device to come up
+
+    - name: Wait the device to come up
+      wait_for:
+        host: "{{ inventory_hostname }}"
+        port: 22
+      delegate_to: localhost
+      async: 1200
+      poll: 10
+      
+# Copy software to target device
+
+    - name: save rsa key
+      include: save_rsa_key.yml
+      when: "'inventory_hostname' not in '~/.ssh/known_hosts'"
+    
+    - name: copy image, this could take up to 15 minutes
+      connection: network_cli
+      command: "sshpass -p {{ansible_password}} scp /etc/ansible/roles/switch_update/files/{{ new_ver }} {{ansible_user}}@{{inventory_hostname}}:/{{ new_ver }}"
+      async: 8000
+      poll: 0
+      register: yum_sleeper
+
+    - name: Wait for asynchronous job to end
+      async_status:
+        jid: '{{ yum_sleeper.ansible_job_id }}'
+      register: job_result
+      until: job_result.finished
+      retries: 800
+      delay: 10
+
+# File integrity check, and stop the play for that host if MD5 check is not True
+
+    - name: File integrity check, checksum
+      include_tasks: file_check.yml
+      
+    - debug:
+        msg:
+        - "\n\n MD5 Check... Success! - Starting installing, activating and commiting new Image. Reload will follow!\n\n"
+      when: "'true' in outcome.stdout"
+      
+    - debug:
+        msg:
+        - "\n\n Error veryfing md5 checksum on device, quitting !!!\n\n"
+      when: "'false' in outcome.stdout"
+      failed_when: "'false' in outcome.stdout"
+      
+# INSTALL the new image
+ 
+    - name: Install the new image
+      include_tasks: install.yml
+
+
+        
+# Clean the flash on all stack members
+    - name: Check image version
+      ios_facts:
+      
+    - debug:
+        msg:
+        - "cleanning..."
+      when: ansible_net_version == imagenr
+      
+    - name: Clean up flash on all stack members          
+      include_tasks: clean.yml     
+      when: ansible_net_version == imagenr 

@@ -1,0 +1,30 @@
+---
+# Image selection according to switch model
+
+    - name: c9300
+      set_fact:
+        new_ver: '{{ c9300_file }}'
+        new_ver_md5: '{{ c9300_file_md5 }}'
+      when: "'9300' in ansible_net_model"
+
+    - name: c9200
+      set_fact: 
+        new_ver: '{{ c9200_file }}'
+        new_ver_md5: '{{ c9200_file_md5 }}'
+      when: "'9200' in ansible_net_model"
+      
+    - name: c3850
+      set_fact:
+        new_ver: '{{ c3850_file }}'
+        new_ver_md5: '{{ c3850_file_md5 }}'
+      when: "'3850' in ansible_net_model"
+         
+      
+    - name: define imagenr
+      local_action: command python /etc/ansible/roles/switch_update/tasks/imagenr_from_new_ver.py  " {{ new_ver }} "
+      register: outcome
+      
+    - name: set the imagenr variable
+      set_fact:
+        imagenr: '{{outcome.stdout}}'
+      

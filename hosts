@@ -1,0 +1,92 @@
+# This is the default ansible 'hosts' file.
+#
+# It should live in /etc/ansible/hosts
+#
+#   - Comments begin with the '#' character
+#   - Blank lines are ignored
+#   - Groups of hosts are delimited by [header] elements
+#   - You can enter hostnames or ip addresses
+#   - A hostname/ip can be a member of multiple groups
+
+# Ex 1: Ungrouped hosts, specify before any group headers.
+
+## green.example.com
+## blue.example.com
+## 192.168.100.1
+## 192.168.100.10
+
+# Ex 2: A collection of hosts belonging to the 'webservers' group
+
+## [webservers]
+## alpha.example.org
+## beta.example.org
+## 192.168.1.100
+## 192.168.1.110
+
+# If you have multiple hosts following a pattern you can specify
+# them like this:
+
+## www[001:006].example.com
+
+# Ex 3: A collection of database servers in the 'dbservers' group
+
+## [dbservers]
+## 
+## db01.intranet.mydomain.net
+## db02.intranet.mydomain.net
+## 10.25.1.56
+## 10.25.1.57
+
+# Here's another example of host ranges, this time there are no
+# leading 0s:
+
+## db-[99:101]-node.example.com
+
+
+[cisco_sw]
+
+#T1-Z-MSWBL-01
+#5.10.41.32
+#5.10.38.251
+#T1-Z-MSWBM-01
+5.10.41.35
+#T1-Z-NSWBL-01
+#5.10.16.142
+#T1-Z-NSWBL-02
+#5.10.16.81
+#T1-Z-NSWBL-03 
+#5.10.16.41
+#T1-Z-NSWEX-01 
+#5.10.16.141
+#T1-Z-NSWFE-01
+#5.10.16.82
+#T1-Z-NSWFI-01 
+#5.10.16.42
+#T1-Z-OSWBH-01
+#5.10.11.35
+#T1-Z-OSWBL-02
+#T1-Z-OSWBM-01
+#T1-Z-OSWLX-01
+#5.10.23.31
+#T1-Z-OSWUE-01
+#T1-Z-OSWUI-01
+#T1-Z-TEMPSW-01
+
+
+[cisco_sw:vars]
+ansible_connection=network_cli
+ansible_network_os=ios
+ansible_become=yes
+ansible_become_method=enable
+
+
+c9300_file=cat9k_iosxe.16.12.04.SPA.bin
+c9300_file_md5=16e8583ca6184c54f9d9fccf4574fa6e
+
+c9200_file=cat9k_lite_iosxe.16.12.04.SPA.bin
+c9200_file_md5=008101d12e11f1f5c8b8cf5627ff0c43
+
+c3850_file=cat3k_caa-universalk9.16.09.06.SPA.bin
+c3850_file_md5=710e1bbaa07b0c8f593af3cab9b5c385
+
+

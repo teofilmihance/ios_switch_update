@@ -1,0 +1,7 @@
+---
+# defaults file for switch_update
+
+ansible_user: user
+ansible_password: 'password'
+
+connection: local

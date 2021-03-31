@@ -1,0 +1,31 @@
+---
+- name: check current version
+  ios_facts:
+  register: switch_details
+  
+  
+# Upgrade decision and image selection according to switch model
+- name: Image selection          
+  include_tasks: image_selection.yml
+
+- debug:
+    msg:
+    - "current model and version is {{ ansible_net_model }} {{ ansible_net_version }} {{ansible_net_image}}"
+    - "upgrade image for {{inventory_hostname}} {{ ansible_net_model }} is {{ imagenr }}"
+    
+- debug:
+    msg:
+    - "image is not compliant and will be upgraded"
+  when: ansible_net_version != imagenr
+  
+- name: Perform the upgrade
+  include_tasks: sw_upgrade.yml
+  when: ansible_net_version != imagenr      
+  
+
+- debug:
+    msg:
+    - "current model and version is {{ ansible_net_model }} {{ ansible_net_version }} {{ansible_net_image}}"
+    - "upgrade image for {{inventory_hostname}} {{ ansible_net_model }} is {{ imagenr }}"
+    - "Image is compliant, upgrade process is done"
+  when: ansible_net_version == imagenr

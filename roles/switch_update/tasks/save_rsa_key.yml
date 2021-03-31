@@ -1,0 +1,16 @@
+---
+
+    - name: save_rsa_key        
+      shell: |
+        spawn ssh {{ansible_user}}@{{inventory_hostname}}
+        expect "?"
+        send "yes\r"
+        expect "*?assword:*"
+        send "{{ansible_password}}\r"
+        expect "#"        
+        exit 0
+
+      args:
+        executable: /usr/bin/expect
+      delegate_to: localhost
+       

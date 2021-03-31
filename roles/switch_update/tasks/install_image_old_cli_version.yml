@@ -1,0 +1,39 @@
+---
+
+     - name: Install the new image for C3850 model switch        
+       shell: |
+         spawn ssh {{ansible_user}}@{{inventory_hostname}}
+         expect "*?assword:*"
+         send "{{ansible_password}}\r"
+         expect "#"
+         send "install add file flash:{{ new_ver }}\r"
+         set timeout 300
+         expect "#"
+         send "install activate\r"
+         set timeout 300
+         expect "This operation requires a reload of the system. Do you want to proceed? [y/n]"
+         send "y\r"
+         set timeout 120
+         expect "#"
+         set timeout 1200
+         sleep 300
+         exit 0
+
+       args:
+         executable: /usr/bin/expect
+       delegate_to: localhost 
+      
+     - name: Commit        
+       shell: |
+         spawn ssh {{ansible_user}}@{{inventory_hostname}}
+         expect "*?assword:*"
+         send "{{ansible_password}}\r"
+         expect "#"
+         send "install commit\r"
+         set timeout 300
+         expect "#"
+         exit 0
+
+       args:
+         executable: /usr/bin/expect
+       delegate_to: localhost 

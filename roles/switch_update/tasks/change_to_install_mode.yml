@@ -1,0 +1,28 @@
+---
+# Change to INSTALL mode
+
+    - name: Install the new image
+      shell: |
+        spawn ssh {{ansible_user}}@{{inventory_hostname}}
+        expect "*?assword:*"
+        send "{{ansible_password}}\r"
+        expect "#"
+        send "install add file {{ ansible_net_image }} activate commit prompt-level none\r"
+        set timeout 1200
+        expect "#"
+        sleep 300
+        exit 0
+
+      args:
+        executable: /usr/bin/expect
+      delegate_to: localhost
+
+# Wait the device to come up
+
+    - name: Wait the device to come up
+      wait_for:
+        host: "{{ inventory_hostname }}"
+        port: 22
+      delegate_to: localhost
+      async: 1200
+      poll: 10

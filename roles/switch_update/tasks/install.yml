@@ -1,0 +1,35 @@
+---
+
+# INSTALL the new image
+ 
+    - name: Install the new image
+      include_tasks: install_image.yml
+
+
+# Check current image and do a new INSTALL attempt using old cli version
+
+    - name: Check image version
+      ios_facts:
+
+    - debug:
+        msg:
+        - "Current version is {{ ansible_net_version }}, a new INSTALL attempt using old cli version"
+      when: ansible_net_version != imagenr
+        
+    - name: INSTALL new image using old cli version
+      include_tasks: install_image_old_cli_version.yml
+      when: ansible_net_version != imagenr
+      
+    - name: Check image version
+      ios_facts:
+      
+    - name: assert the ios version is correct
+      assert:
+        that:
+          - imagenr == ansible_net_version
+      ignore_errors: yes    
+
+    - debug:
+        msg:
+        - "Software upgrade to {{ ansible_net_version }} has been completed"
+      when: ansible_net_version == imagenr

@@ -1,0 +1,13 @@
+---
+
+# File integrity check, checksum
+
+    - name: File integrity check, checksum
+      ios_command:
+        commands: verify /md5 flash:{{ new_ver }}
+      register: sw_md5
+      
+    - name: format md5
+      local_action: command python /etc/ansible/roles/switch_update/tasks/checksum.py  " {{ new_ver_md5 }} " " {{ sw_md5 }} "
+      register: outcome
+      

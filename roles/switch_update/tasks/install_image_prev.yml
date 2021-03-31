@@ -1,0 +1,20 @@
+---
+
+# Change to INSTALL mode
+
+    - name: Change to Install mode, boot variable to the existing packages.conf
+      ios_command:
+        commands:
+        - install add file flash:{{new_ver}} activate commit prompt-level none
+      async: 1200
+      poll: 0
+      register: yum_sleeper
+
+    - name: Wait for asynchronous job to end
+      async_status:
+        jid: '{{ yum_sleeper.ansible_job_id }}'
+      register: job_result
+      until: job_result.finished
+      retries: 100
+      delay: 10
+      ignore_errors: yes

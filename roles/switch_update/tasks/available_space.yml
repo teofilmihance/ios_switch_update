@@ -1,0 +1,33 @@
+---
+# Check available space
+
+    - name: Get file_size of new_ver
+      stat:
+        path: "/etc/ansible/roles/switch_update/files/{{ new_ver }}"
+      register: file_size
+
+    - name: Get file_size in Kb
+      set_fact:
+        file_size_kb: '{{ file_size.stat.size / 1000 }}'
+      register: file_size_kb
+      
+    - debug:  
+        var: ansible_net_filesystems_info['flash:']['spacefree_kb']
+      register: device_mem_size
+      
+    - debug:
+        msg:
+        - 'ios_image size in Kbytes is {{ file_size_kb }}'
+        - 'device free space in kbytes is:'
+        - '{{device_mem_size}}'
+        - 'Device has enough space for new image'
+      when: ansible_net_filesystems_info['flash:']['spacefree_kb']|int > file_size_kb|int
+
+    - debug:
+        msg:
+        - 'Device will be cleaned, there is no space for new image'
+      when: ansible_net_filesystems_info['flash:']['spacefree_kb']|int < file_size_kb|int
+      
+    - name: Memory free check
+      include_tasks: clean.yml
+      when: ansible_net_filesystems_info['flash:']['spacefree_kb']|int < file_size_kb|int

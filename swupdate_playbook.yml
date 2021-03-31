@@ -1,0 +1,14 @@
+---
+
+- name: swupgrade
+  gather_facts: False
+  hosts: cisco_sw
+  connection: local
+  vars_files:
+    - vars_files/credentials.yml
+  roles:
+    - { role: switch_update }
+  
+
+
+      

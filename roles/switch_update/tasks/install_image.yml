@@ -1,0 +1,19 @@
+---
+
+     - name: Install the new image for C... model switch        
+       shell: |
+         spawn ssh {{ansible_user}}@{{inventory_hostname}}
+         expect "*?assword:*"
+         send "{{ansible_password}}\r"
+         expect "#"
+         send "install add file flash:{{ new_ver }} activate commit prompt-level none\r"
+         expect "#"
+         set timeout 1200
+         sleep 900
+         exit 0
+
+       args:
+         executable: /usr/bin/expect
+       delegate_to: localhost
+       ignore_errors: yes
+
