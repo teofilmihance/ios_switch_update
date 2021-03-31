@@ -1,4 +1,4 @@
-#switch update
+#switch update firstdraft
 It is updating c series switches to image provided
 
 
